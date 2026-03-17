@@ -99,6 +99,7 @@ export function useConvaiClient(characterId, apiKey) {
           setAvatar(response.data.model_details.modelLink);
           setNpcName(response.data.character_name);
           setGender(response.data.voice_type);
+          console.log('Convai avatar URL:', response.data.model_details.modelLink);
         }
       } catch (error) {
         console.error("Error fetching character:", error);

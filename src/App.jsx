@@ -8,7 +8,7 @@ function App() {
   /**
    * Add apikey and character id here
    */
-  const { client } = useConvaiClient('CHARACTER_ID', 'API_KEY');
+  const { client } = useConvaiClient(import.meta.env.VITE_CHARACTER_ID, import.meta.env.VITE_CONVAI_KEY);
   return (
     <>
       <KeyboardControls

@@ -29,10 +29,12 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
   }, [client?.facialData]);
 
   useEffect(() => {
-    tongueTranslationY =
-      characterRef.current.getObjectByName('CC_Base_Tongue02').position.y;
-    tongueTranslationX =
-      characterRef.current.getObjectByName('CC_Base_Tongue02').position.x;
+    if (!characterRef.current) return;
+    const tongue02 = characterRef.current.getObjectByName('CC_Base_Tongue02');
+    if (tongue02) {
+      tongueTranslationY = tongue02.position.y;
+      tongueTranslationX = tongue02.position.x;
+    }
   }, []);
   const [blink, setBlink] = useState(false);
   // Create a throttled function that updates the animation
@@ -59,16 +61,19 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
   const [startClock, setStartClock] = useState(false);
 
   useFrame((state, _delta) => {
-    characterRef.current
-      .getObjectByName('CC_Base_JawRoot')
-      .setRotationFromEuler(jawRotation);
-    characterRef.current
-      .getObjectByName('CC_Base_Tongue01')
-      .setRotationFromEuler(tongueRotation);
-    characterRef.current.getObjectByName('CC_Base_Tongue02').position.y =
-      tongueTranslationY;
-    characterRef.current.getObjectByName('CC_Base_Tongue02').position.x =
-      tongueTranslationX;
+    if (!characterRef.current || !nodes || !scene) return;
+
+    const jawRoot = characterRef.current.getObjectByName('CC_Base_JawRoot');
+    const tongue01 = characterRef.current.getObjectByName('CC_Base_Tongue01');
+    const tongue02 = characterRef.current.getObjectByName('CC_Base_Tongue02');
+
+    if (jawRoot) jawRoot.setRotationFromEuler(jawRotation);
+    if (tongue01) tongue01.setRotationFromEuler(tongueRotation);
+    if (tongue02) {
+      tongue02.position.y = tongueTranslationY;
+      tongue02.position.x = tongueTranslationX;
+    }
+
     if (tick) {
       /**
        * Sync code ends
@@ -104,14 +109,12 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
 
       // setting jaw and tongue
       Object.keys(nodes).forEach((nodeKey) => {
-        if (nodeKey.includes('Eye')) {
-          if (nodes[nodeKey].morphTargetDictionary) {
-            Object.keys(nodes[nodeKey].morphTargetDictionary).forEach((key) => {
-              if (key === 'Eye_Blink_L' || key === 'Eye_Blink_R') {
-                return;
-              }
-            });
-          }
+        const node = nodes[nodeKey];
+        if (!node) return;
+        if (nodeKey.includes('Eye') && node.morphTargetDictionary) {
+          Object.keys(node.morphTargetDictionary).forEach((key) => {
+            if (key === 'Eye_Blink_L' || key === 'Eye_Blink_R') return;
+          });
         }
       });
       lerpMorphTarget('Eye_Blink_L', blink ? 1 : 0, 0.5, scene);
