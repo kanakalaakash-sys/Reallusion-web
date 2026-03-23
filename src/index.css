@@ -137,5 +137,5 @@ span {
   position: absolute;
   top: 1vh;
   left: 1vw;
-  z-index: 1;
+  z-index: 100;
 }

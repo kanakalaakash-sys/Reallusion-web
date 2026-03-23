@@ -1,4 +1,6 @@
-const VisemeMap = {
+// Convai viseme index → Avaturn ARKit blendshape mapping
+
+const VisemeIndexMap = {
   0: 'sil',
   1: 'PP',
   2: 'FF',
@@ -16,265 +18,48 @@ const VisemeMap = {
   14: 'U',
 };
 
-export const Reallusion = {
-  sil: {
-    Mouth_Drop_Lower: 0,
-    Mouth_Drop_Upper: 0,
-    Mouth_Shrug_Upper: 0,
-    Mouth_Shrug_Lower: 0,
-    Mouth_Stretch_L: 0,
-    Mouth_Stretch_R: 0,
-    Mouth_Blow_L: 0,
-    Mouth_Blow_R: 0,
-    Mouth_Pull_Lower_L: 0,
-    Mouth_Pull_Lower_R: 0,
-    Mouth_Pull_Upper_L: 0,
-    Mouth_Pull_Upper_R: 0,
-    Mouth_Push_Lower_L: 0,
-    Mouth_Push_Lower_R: 0,
-    Mouth_Roll_In_Upper_L: 0,
-    Mouth_Roll_In_Upper_R: 0,
-    Mouth_Roll_In_Lower_L: 0,
-    Mouth_Roll_In_Lower_R: 0,
-    Mouth_Roll_Out_Lower_L: 0,
-    Mouth_Roll_Out_Lower_R: 0,
-    Mouth_Roll_Out_Upper_L: 0,
-    Mouth_Roll_Out_Upper_R: 0,
-    Mouth_Funnel_Down_L: 0,
-    Mouth_Funnel_Down_R: 0,
-    Mouth_Smile_L: 0,
-    Mouth_Smile_R: 0,
-    Mouth_Frown_L: 0,
-    Mouth_Frown_R: 0,
-    Mouth_Down: 0,
-    Mouth_Press_R: 0,
-    Mouth_Press_L: 0,
-    V_Explosive: 0,
-    V_Lip_Open: 0,
-    V_Wide: 0,
-    V_Dental_Lip: 0,
-    V_Tight_O: 0,
-    V_Affricate: 0,
-    V_Tongue_Out: 0,
-    Open_Jaw: 0,
-    TongueRotation: 0,
-    TongueUp: 0,
-  },
-  PP: {
-    V_Explosive: 1.0,
-    Mouth_Roll_In_Upper_L: 0.3,
-    Mouth_Roll_In_Upper_R: 0.3,
-    Mouth_Roll_In_Lower_L: 0.3,
-    Mouth_Roll_In_Lower_R: 0.3,
-    Open_Jaw: 0.1,
-  },
-  FF: {
-    V_Dental_Lip: 1.0,
-    Mouth_Funnel_Down_L: 0.2,
-    Mouth_Funnel_Down_R: 0.2,
-    Mouth_Drop_Upper: 0.25,
-  },
-  TH: {
-    Mouth_Drop_Lower: 0.2,
-    Mouth_Shrug_Upper: 0.25,
-    Mouth_Stretch_L: 0.1,
-    Mouth_Stretch_R: 0.1,
-    V_Lip_Open: 0.4,
-    V_Tongue_Out: 1.0,
-    Open_Jaw: 0.12,
-    TongueUp: 0.22,
-    TongueRotation: -0.3,
-  },
-  DD: {
-    Mouth_Shrug_Upper: 0.35,
-    Mouth_Stretch_L: 0.35,
-    Mouth_Stretch_R: 0.35,
-    Mouth_Roll_Out_Lower_L: 0.5,
-    Mouth_Roll_Out_Lower_R: 0.5,
-    V_Lip_Open: 0.5,
-    Open_Jaw: 0.07,
-    TongueRotation: -0.6,
-    TongueUp: 0.22,
-  },
-  KK: {
-    Mouth_Drop_Lower: 0.6,
-    Mouth_Shrug_Upper: 0.1,
-    Open_Jaw: 0.06,
-    V_Wide: 0.1,
-  },
-  CH: {
-    Mouth_Drop_Lower: 0.4,
-    Mouth_Down: 0.22,
-    Mouth_Roll_Out_Lower_L: 0.7,
-    Mouth_Roll_Out_Lower_R: 0.7,
-    V_Affricate: 0.7,
-    Open_Jaw: 0.06,
-    TongueRotation: -0.1,
-    TongueUp: 0.22,
-  },
-  SS: {
-    Mouth_Shrug_Upper: 0.3,
-    Mouth_Drop_Lower: 0.85,
-    Mouth_Smile_L: 0.27,
-    Mouth_Smile_R: 0.27,
-    Mouth_Roll_In_Upper_L: 0.2,
-    Mouth_Roll_In_Upper_R: 0.2,
-    V_Wide: 0.3,
-    Open_Jaw: 0.05,
-  },
-  NN: {
-    Mouth_Drop_Lower: 0.5,
-    Mouth_Down: 0.22,
-    Mouth_Pull_Lower_L: 1.0,
-    Mouth_Pull_Lower_R: 1.0,
-    Mouth_Roll_Out_Lower_L: 0.8,
-    Mouth_Roll_Out_Lower_R: 0.8,
-    V_Affricate: 0.7,
-    Open_Jaw: 0.08,
-    TongueRotation: -0.3,
-    TongueUp: 0.22,
-  },
-  RR: {
-    Mouth_Drop_Upper: 0.2,
-    Mouth_Drop_Lower: 0.1,
-    Mouth_Down: 0.22,
-    Mouth_Blow_L: 0.3,
-    Mouth_Blow_R: 0.3,
-    Mouth_Pull_Lower_L: 1.0,
-    Mouth_Pull_Lower_R: 1.0,
-    Mouth_Roll_Out_Lower_L: 0.7,
-    Mouth_Roll_Out_Lower_R: 0.7,
-    V_Affricate: 0.4,
-    V_Lip_Open: 0.4,
-    Open_Jaw: 0.05,
-    TongueUp: 0.2,
-    TongueRotation: -0.3,
-  },
-  AA: {
-    Mouth_Drop_Lower: 0.2,
-    Mouth_Frown_L: 0.2,
-    Mouth_Frown_R: 0.2,
-    V_Tongue_Out: -0.4,
-    TongueRotation: 0.12,
-    Open_Jaw: 0.2,
-  },
-  E: {
-    Mouth_Shrug_Upper: 0.2,
-    Mouth_Drop_Lower: 0.2,
-    Mouth_Down: 0.3,
-    Mouth_Pull_Lower_L: 1.0,
-    Mouth_Pull_Lower_R: 1.0,
-    Mouth_Pull_Upper_L: 1.0,
-    Mouth_Pull_Upper_R: 1.0,
-    Mouth_Smile_L: 0.3,
-    Mouth_Smile_R: 0.3,
-    Open_Jaw: 0.09,
-  },
-  I: {
-    Mouth_Shrug_Upper: 0.2,
-    Mouth_Drop_Lower: 0.21,
-    Mouth_Down: 0.2,
-    Open_Jaw: 0.1,
-    Mouth_Frown_L: 0.15,
-    Mouth_Frown_R: 0.15,
-    Mouth_Pull_Upper_L: 1.0,
-    Mouth_Pull_Upper_R: 1.0,
-    Mouth_Pull_Lower_L: 1.0,
-    Mouth_Pull_Lower_R: 1.0,
-    V_Lip_Open: 0.5,
-    TongueRotation: -0.2,
-    TongueUp: 0.2,
-    V_Tongue_Out: 0.2,
-  },
-  O: {
-    // Mouth_Drop_Upper: 0.2,
-    // Mouth_Down: 0.2,
-    // Mouth_Funnel_Down_L: 0.3,
-    // Mouth_Funnel_Down_R: 0.3,
-    // Mouth_Frown_L: 0.3,
-    // Mouth_Frown_R: 0.3,
-    // V_Tight_O: 0.7,
-    // Open_Jaw: 0.16,
-
-    // EE Copy
-    Mouth_Shrug_Upper: 0.3,
-    Mouth_Drop_Lower: 0.2,
-    Mouth_Down: 0.3,
-    Mouth_Pull_Lower_L: 1.0,
-    Mouth_Pull_Lower_R: 1.0,
-    Mouth_Pull_Upper_L: 1.0,
-    Mouth_Pull_Upper_R: 1.0,
-    Mouth_Smile_L: 0.3,
-    Mouth_Smile_R: 0.3,
-    Open_Jaw: 0.12,
-  },
-  U: {
-    Mouth_Shrug_Lower: 0.1,
-    Mouth_Drop_Upper: 0.22,
-    Mouth_Down: 0.27,
-    V_Tight_O: 0.8,
-    Open_Jaw: 0.11,
-  },
+const ARKit = {
+  sil: {},
+  PP: { jawOpen: 0.05, mouthClose: 0.8, mouthRollLower: 0.3, mouthRollUpper: 0.3 },
+  FF: { jawOpen: 0.1, mouthLowerDownLeft: 0.4, mouthLowerDownRight: 0.4, mouthUpperUpLeft: 0.1, mouthUpperUpRight: 0.1 },
+  TH: { jawOpen: 0.15, tongueOut: 0.8, mouthShrugLower: 0.2 },
+  DD: { jawOpen: 0.15, mouthShrugLower: 0.3, mouthStretchLeft: 0.2, mouthStretchRight: 0.2 },
+  KK: { jawOpen: 0.3, mouthShrugUpper: 0.2 },
+  CH: { jawOpen: 0.2, mouthFunnel: 0.3, mouthRollLower: 0.2 },
+  SS: { jawOpen: 0.1, mouthSmileLeft: 0.3, mouthSmileRight: 0.3, mouthStretchLeft: 0.2, mouthStretchRight: 0.2 },
+  NN: { jawOpen: 0.2, mouthClose: 0.3 },
+  RR: { jawOpen: 0.2, mouthFunnel: 0.2, mouthPucker: 0.2, mouthRollLower: 0.3 },
+  AA: { jawOpen: 0.7, mouthShrugLower: 0.3, mouthStretchLeft: 0.2, mouthStretchRight: 0.2 },
+  E:  { jawOpen: 0.4, mouthSmileLeft: 0.4, mouthSmileRight: 0.4, mouthStretchLeft: 0.3, mouthStretchRight: 0.3 },
+  I:  { jawOpen: 0.25, mouthSmileLeft: 0.5, mouthSmileRight: 0.5, mouthStretchLeft: 0.4, mouthStretchRight: 0.4 },
+  O:  { jawOpen: 0.5, mouthFunnel: 0.5, mouthPucker: 0.2 },
+  U:  { jawOpen: 0.3, mouthFunnel: 0.4, mouthPucker: 0.6 },
 };
 
-export const VisemeToReallusion = (viseme, blendShapeRef) => {
-  if (typeof viseme === 'object') {
-    const blendShape = {
-      Mouth_Drop_Lower: 0,
-      Mouth_Drop_Upper: 0,
-      Mouth_Shrug_Upper: 0,
-      Mouth_Shrug_Lower: 0,
-      Mouth_Stretch_L: 0,
-      Mouth_Stretch_R: 0,
-      Mouth_Blow_L: 0,
-      Mouth_Blow_R: 0,
-      Mouth_Pull_Lower_L: 0,
-      Mouth_Pull_Lower_R: 0,
-      Mouth_Pull_Upper_L: 0,
-      Mouth_Pull_Upper_R: 0,
-      Mouth_Push_Lower_L: 0,
-      Mouth_Push_Lower_R: 0,
-      Mouth_Funnel_Down_L: 0,
-      Mouth_Funnel_Down_R: 0,
-      Mouth_Roll_In_Upper_L: 0,
-      Mouth_Roll_In_Upper_R: 0,
-      Mouth_Roll_In_Lower_L: 0,
-      Mouth_Roll_In_Lower_R: 0,
-      Mouth_Roll_Out_Lower_L: 0,
-      Mouth_Roll_Out_Lower_R: 0,
-      Mouth_Roll_Out_Upper_L: 0,
-      Mouth_Roll_Out_Upper_R: 0,
-      Mouth_Smile_R: 0,
-      Mouth_Smile_L: 0,
-      Mouth_Frown_L: 0,
-      Mouth_Frown_R: 0,
-      Mouth_Down: 0,
-      Mouth_Press_R: 0,
-      Mouth_Press_L: 0,
-      V_Explosive: 0,
-      V_Lip_Open: 0,
-      V_Wide: 0,
-      V_Dental_Lip: 0,
-      V_Tight_O: 0,
-      V_Affricate: 0,
-      V_Tongue_Out: 0,
-      Open_Jaw: 0,
-      TongueRotation: 0,
-      TongueUp: 0,
-    };
+// All ARKit targets we touch — used to zero out each frame
+const ALL_TARGETS = [
+  'jawOpen', 'mouthClose', 'mouthFunnel', 'mouthPucker',
+  'mouthSmileLeft', 'mouthSmileRight', 'mouthStretchLeft', 'mouthStretchRight',
+  'mouthShrugLower', 'mouthShrugUpper', 'mouthRollLower', 'mouthRollUpper',
+  'mouthLowerDownLeft', 'mouthLowerDownRight', 'mouthUpperUpLeft', 'mouthUpperUpRight',
+  'tongueOut',
+];
 
-    for (const key in viseme) {
-      let visemeValue = viseme[key];
-      if (key === '1' && visemeValue < 0.2) {
-        visemeValue = visemeValue * 1.5;
-      }
-      // if(visemeValue > 0.7)
-      const currentBlend = Reallusion[VisemeMap[key]];
-      for (const blend in currentBlend) {
-        const blendValue = currentBlend[blend] * visemeValue;
-        blendShape[blend] = blendShape[blend] + blendValue;
-      }
+export const VisemeToARKit = (viseme, blendShapeRef) => {
+  if (typeof viseme !== 'object') return;
+
+  const blendShape = {};
+  for (const t of ALL_TARGETS) blendShape[t] = 0;
+
+  for (const key in viseme) {
+    const visemeValue = viseme[key];
+    const visemeName = VisemeIndexMap[parseInt(key)];
+    if (!visemeName) continue;
+    const targets = ARKit[visemeName];
+    for (const target in targets) {
+      blendShape[target] += targets[target] * visemeValue;
     }
-    blendShapeRef.current.push(blendShape);
   }
+
+  blendShapeRef.current.push(blendShape);
 };

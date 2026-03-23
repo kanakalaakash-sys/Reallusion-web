@@ -113,7 +113,15 @@ const ChatBubble = (props) => {
           message: messagesJSON,
         };
         // Update the stored data in localStorage
-        localStorage.setItem("messages", JSON.stringify(parsedData));
+        try {
+          localStorage.setItem("messages", JSON.stringify(parsedData));
+        } catch (e) {
+          // localStorage is full — wipe everything and store only the current session
+          localStorage.clear();
+          try {
+            localStorage.setItem("messages", JSON.stringify({ [client.characterId]: parsedData[client.characterId] }));
+          } catch (_) { /* give up silently, chat still works in-memory */ }
+        }
       } else {
         // No stored data, create a new entry for the current character ID
         const messagesData = {
@@ -122,7 +130,14 @@ const ChatBubble = (props) => {
             message: messagesJSON,
           },
         };
-        localStorage.setItem("messages", JSON.stringify(messagesData));
+        try {
+          localStorage.setItem("messages", JSON.stringify(messagesData));
+        } catch (e) {
+          localStorage.clear();
+          try {
+            localStorage.setItem("messages", JSON.stringify(messagesData));
+          } catch (_) { /* give up silently */ }
+        }
       }
     }
   }, [client?.characterId, messages, session]);
@@ -236,7 +251,7 @@ const ChatBubble = (props) => {
       <ChatBubblev2
         userText={client?.userText}
         npcText={client?.npcText}
-        messages={client?.messages}
+        messages={messages}
         userInput={userInput}
         chatHistory={history}
         keyPressed={client?.keyPressed}

@@ -1,18 +1,13 @@
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import _, { bind } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { lerpMorphTarget } from '../helpers/lerpMorphTarget';
-import { Reallusion, VisemeToReallusion } from '../helpers/mappingMorphs';
+import { VisemeToARKit } from '../helpers/mappingMorphs';
 import * as THREE from 'three';
-
-const jawRotation = new THREE.Euler(0, 0, 1.57);
-const tongueRotation = new THREE.Euler(0, 0, 0);
-let tongueTranslationX = 0;
-let lerpNum = 1;
-let tongueTranslationY = 0;
 
 /**
  * useLipsync : Runs morphs at 100fps and manages frame skips with blinking.
+ * Configured for Avaturn ARKit blendshapes.
  * @characterRef : Reference to the character group where lipsync is to be performed.
  */
 export const useLipsync = ({ client, characterRef, nodes, scene }) => {
@@ -20,7 +15,7 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
   const blendShapeRef = useRef([]);
   const currentBlendFrame = useRef(0);
 
-  // resetting blendShapeRef and currentFrameIndex facial data
+  // Reset blendShapeRef and frame index when facial data clears
   useEffect(() => {
     if (client?.facialData.length === 0) {
       blendShapeRef.current = [];
@@ -28,56 +23,30 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
     }
   }, [client?.facialData]);
 
-  useEffect(() => {
-    if (!characterRef.current) return;
-    const tongue02 = characterRef.current.getObjectByName('CC_Base_Tongue02');
-    if (tongue02) {
-      tongueTranslationY = tongue02.position.y;
-      tongueTranslationX = tongue02.position.x;
-    }
-  }, []);
   const [blink, setBlink] = useState(false);
-  // Create a throttled function that updates the animation
-  const throttledUpdate = _.throttle(updateAnimation, 10); // 16ms is roughly 60 frames per second
+
+  const throttledUpdate = _.throttle(updateAnimation, 10);
   function updateAnimation() {
     setTick((tick) => {
-      if (tick) {
-        return tick;
-      }
+      if (tick) return tick;
       return true;
     });
     requestAnimationFrame(throttledUpdate);
   }
 
   useEffect(() => {
-    // Start the animation loop when the component mounts
     requestAnimationFrame(throttledUpdate);
-    // Clean up the animation loop when the component unmounts
     return () => {
       cancelAnimationFrame(throttledUpdate);
     };
   }, []);
-  //  animation loop
+
   const [startClock, setStartClock] = useState(false);
 
   useFrame((state, _delta) => {
     if (!characterRef.current || !nodes || !scene) return;
 
-    const jawRoot = characterRef.current.getObjectByName('CC_Base_JawRoot');
-    const tongue01 = characterRef.current.getObjectByName('CC_Base_Tongue01');
-    const tongue02 = characterRef.current.getObjectByName('CC_Base_Tongue02');
-
-    if (jawRoot) jawRoot.setRotationFromEuler(jawRotation);
-    if (tongue01) tongue01.setRotationFromEuler(tongueRotation);
-    if (tongue02) {
-      tongue02.position.y = tongueTranslationY;
-      tongue02.position.x = tongueTranslationX;
-    }
-
     if (tick) {
-      /**
-       * Sync code ends
-       */
       if (!startClock || !client?.isTalking) {
         state.clock.elapsedTime = 0;
         if (startClock) setStartClock(false);
@@ -86,11 +55,12 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
       if (client?.isTalking) {
         setStartClock(true);
       }
+
       if (startClock) {
         const frameSkipNumber = 10;
         if (
           Math.floor(state.clock.elapsedTime * 100) -
-          currentBlendFrame.current >
+            currentBlendFrame.current >
           frameSkipNumber
         ) {
           for (let i = 0; i < frameSkipNumber; i++) {
@@ -99,7 +69,7 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
           currentBlendFrame.current += frameSkipNumber;
         } else if (
           Math.floor(state.clock.elapsedTime * 100) -
-          currentBlendFrame.current <
+            currentBlendFrame.current <
           -frameSkipNumber
         ) {
           blendShapeRef.current.splice(-frameSkipNumber);
@@ -107,77 +77,23 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
         }
       }
 
-      // setting jaw and tongue
-      Object.keys(nodes).forEach((nodeKey) => {
-        const node = nodes[nodeKey];
-        if (!node) return;
-        if (nodeKey.includes('Eye') && node.morphTargetDictionary) {
-          Object.keys(node.morphTargetDictionary).forEach((key) => {
-            if (key === 'Eye_Blink_L' || key === 'Eye_Blink_R') return;
-          });
-        }
-      });
-      lerpMorphTarget('Eye_Blink_L', blink ? 1 : 0, 0.5, scene);
-      lerpMorphTarget('Eye_Blink_R', blink ? 1 : 0, 0.5, scene);
+      // Eye blink — RPM uses eyeBlinkLeft / eyeBlinkRight
+      lerpMorphTarget('eyeBlinkLeft', blink ? 1 : 0, 0.5, scene);
+      lerpMorphTarget('eyeBlinkRight', blink ? 1 : 0, 0.5, scene);
 
-      // Initiate blendshapes
+      // Build blendshape frame from Convai facial data
       if (client?.facialData.length > 0) {
-        // OvrToMorph(client?.facialData[currentBlendFrame.current],blendShapeRef);
-        VisemeToReallusion(
+        VisemeToARKit(
           client?.facialData[currentBlendFrame.current],
           blendShapeRef
         );
       }
-      // run all blends here
+
+      // Apply blendshapes
       if (currentBlendFrame.current <= blendShapeRef?.current?.length) {
-        for (const blend in blendShapeRef.current[
-          currentBlendFrame.current - 1
-        ]) {
-          if (blend === 'Open_Jaw') {
-            if (
-              blendShapeRef.current[currentBlendFrame.current - 1][blend] < 0.07
-            ) {
-              jawRotation.z = THREE.MathUtils.lerp(
-                jawRotation.z,
-                1.54,
-                lerpNum
-              );
-            } else {
-              jawRotation.z = THREE.MathUtils.lerp(
-                jawRotation.z,
-                1.55 +
-                blendShapeRef.current[currentBlendFrame.current - 1][blend],
-                lerpNum
-              );
-            }
-          }
-          lerpMorphTarget(
-            blend,
-            blendShapeRef.current[currentBlendFrame.current - 1][blend],
-            1,
-            scene
-          );
-          if (blend === 'TongueRotation') {
-            tongueRotation.z = THREE.MathUtils.lerp(
-              tongueRotation.z,
-              0.3 + blendShapeRef.current[currentBlendFrame.current - 1][blend],
-              lerpNum
-            );
-          }
-          if (blend === 'TongueUp') {
-            tongueTranslationY = THREE.MathUtils.lerp(
-              tongueTranslationY,
-              blendShapeRef.current[currentBlendFrame.current - 1][blend],
-              lerpNum
-            );
-          }
-          if (blend === 'V_Tongue_Out') {
-            tongueTranslationX = THREE.MathUtils.lerp(
-              tongueTranslationX,
-              blendShapeRef.current[currentBlendFrame.current - 1][blend],
-              lerpNum
-            );
-          }
+        const frame = blendShapeRef.current[currentBlendFrame.current - 1];
+        for (const blend in frame) {
+          lerpMorphTarget(blend, frame[blend], 1, scene);
         }
         currentBlendFrame.current += 1;
       }
@@ -186,11 +102,9 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
     }
   });
 
-  // Resetting the blendshapes when the character stops talking
+  // Reset all blendshapes when character stops talking
   useEffect(() => {
     if (!client?.isTalking) {
-      jawRotation.z = THREE.MathUtils.lerp(jawRotation.z, 1.57, 0.8);
-      // reset all blendshapes
       scene.traverse((child) => {
         if (child.isSkinnedMesh && child.morphTargetDictionary) {
           for (const target in child.morphTargetDictionary) {
@@ -201,7 +115,6 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
             ) {
               return;
             }
-
             child.morphTargetInfluences[index] = THREE.MathUtils.lerp(
               child.morphTargetInfluences[index],
               0,
@@ -213,7 +126,7 @@ export const useLipsync = ({ client, characterRef, nodes, scene }) => {
     }
   }, [client?.isTalking, scene]);
 
-  // blink
+  // Eye blink loop
   useEffect(() => {
     let blinkTimeout;
     const nextBlink = () => {

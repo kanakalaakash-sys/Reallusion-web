@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import logo from '../../assets/ConvaiLogo.png';
+import logo from '../../assets/companyLogo.png';
 import Thumbsdownoutline from '../../assets/Thumbsdownoutline.png';
 import Thumbsdown_fill from '../../assets/Thumbsdown_fill.png';
 import ThumbsUp_fill from '../../assets/Thumbsup_fill.png';
@@ -69,7 +69,6 @@ const ChatBubblev2 = (props) => {
           }}
         >
           {messages.map((message, idx) => {
-            const isUserMessage = message.sender === "user";
             const nextMessage = messages[idx + 1];
             const isNextMessageUser =
               !nextMessage || nextMessage.sender === "user";
@@ -224,7 +223,7 @@ const ChatBubblev2 = (props) => {
                       fontWeight: "bold",
                     }}
                   >
-                    Npc:
+                    {npcName || "Advika"}:
                   </span>
                   <span style={{ color: "#FFFFFF", paddingLeft: "15px" }}>
                     {npcText}

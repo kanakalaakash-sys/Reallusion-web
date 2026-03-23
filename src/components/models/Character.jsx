@@ -5,8 +5,7 @@ import { useHeadTracking } from '../../hooks/useHeadTracking';
 
 export function Character(props) {
   const { client } = props;
-  const modelUrl = client?.avatar || import.meta.env.VITE_MODEL_PATH;
-
+  const modelUrl = import.meta.env.VITE_MODEL_PATH || client?.avatar;
   useEffect(() => {
     if (client?.avatar) useGLTF.preload(client.avatar);
   }, [client?.avatar]);
@@ -37,7 +36,7 @@ export function Character(props) {
     if (client?.convaiClient?.current) {
       client.convaiClient.current.sendTextChunk('');
     }
-  }, [client]);
+  }, []); // run once on mount only
 
   useEffect(() => {
     if (client?.isTalking) setAnimation('Idle');

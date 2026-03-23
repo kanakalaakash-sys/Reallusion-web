@@ -33,6 +33,11 @@ export function useConvaiClient(characterId, apiKey) {
 
   //Intializing the convai Client
   useEffect(() => {
+    // Request mic permission upfront so it's ready when user presses T
+    navigator.mediaDevices?.getUserMedia({ audio: true })
+      .then(stream => stream.getTracks().forEach(t => t.stop()))
+      .catch(() => console.warn('Microphone permission denied or unavailable'));
+
     convaiClient.current = new ConvaiClient({
       apiKey: apiKey,
       characterId: characterId,
@@ -77,6 +82,8 @@ export function useConvaiClient(characterId, apiKey) {
         }
         if (response.getAudioResponse()?.getEndOfResponse()) {
           setUserEndOfResponse(true);
+          // If audio never plays (e.g. no voice set), reset isTalking here
+          setIsTalking(false);
         }
 
       }
@@ -140,14 +147,17 @@ export function useConvaiClient(characterId, apiKey) {
     if (convaiClient.current && e.keyCode === 84 && !keyPressed) {
       e.stopPropagation();
       e.preventDefault();
-      setKeyPressed(true);
       finalizedUserText.current = "";
       npcTextRef.current = "";
       setUserText("");
       setNpcText("");
-      convaiClient.current.startAudioChunk();
-      // Record the timestamp of the key Pressed
-      setKeyPressTimeStamp(Date.now())
+      try {
+        convaiClient.current.startAudioChunk();
+        setKeyPressed(true);
+        setKeyPressTimeStamp(Date.now());
+      } catch (err) {
+        console.error('Mic error:', err.message);
+      }
     }
   }
 
